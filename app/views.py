@@ -30,7 +30,7 @@ def upload():
     form = UploadForm()
     # Validate file upload on submit
     if request.method == 'POST' and form.validate_on_submit():
-        # Get file data and save to your uploads folder
+        # Get file data and save to your folder
         file = form.file_upload.data
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -70,6 +70,14 @@ def login():
     flash_errors(form)
     return render_template("login.html", form=form)
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('home'))
+
+
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 @login_manager.user_loader
@@ -80,7 +88,7 @@ def load_user(id):
 # The functions below should be applicable to all Flask apps.
 ###
 def get_uploaded_images():
-    UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', './uploads')
+    UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', './upload')
     images = []
     for filename in os.listdir(UPLOAD_FOLDER):
         if filename.endswith('.jpg') or filename.endswith('.png'):
@@ -95,7 +103,7 @@ def flash_errors(form):
                 error
 ), 'danger')
 
-@app.route('/uploads/<filename>')
+@app.route('/upload/<filename>')
 def get_image(filename):
     return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
 
